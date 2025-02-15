@@ -149,7 +149,7 @@ begin
       'jre.zip', '{#JRESHA256}');
 
     // Add JavaFX module downloads
-    for i := 0 to 6 do begin
+    for i := 0 to 5 do begin
       URL := GetJavaFXDownloadURL(JavaFXModules[i], False);
       Log('Adding JavaFX module to queue: ' + URL);
       DownloadPage.Add(URL, 'javafx-' + IntToStr(i) + '.jar', '');
