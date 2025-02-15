@@ -1,0 +1,37 @@
+name: Build Installer
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download JAR
+        run: |
+          Invoke-WebRequest -Uri "${{ secrets.JAR_URL }}" -OutFile "SKlauncher.jar"
+        shell: pwsh
+
+      - name: Install InnoSetup
+        run: |
+          choco install innosetup --no-progress
+
+      - name: Download 7zip CLI
+        run: |
+          Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2409-extra.7z" -OutFile "7z-extra.7z"
+          & 'C:\Program Files\7-Zip\7z.exe' e 7z-extra.7z -o"." 7za.exe -r -y
+          Remove-Item 7z-extra.7z
+        shell: pwsh
+
+      - name: Compile Installer
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /O"." inno.iss
+        shell: pwsh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SKlauncher-Installer
+          path: "*_Setup.exe"
