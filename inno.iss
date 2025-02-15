@@ -204,7 +204,7 @@ begin
       Log('Failed to create directory: ' + DestDir);
   end;
     
-  for i := 0 to 6 do begin
+  for i := 0 to 5 do begin
     SourceFile := ExpandConstant('{tmp}\javafx-' + IntToStr(i) + '.jar');
     SourceSHA1 := ExpandConstant('{tmp}\javafx-' + IntToStr(i) + '.jar.sha1');
     DestFile := DestDir + '\' + JavaFXModules[i] + '-{#JavaFXVersion}-win.jar';
