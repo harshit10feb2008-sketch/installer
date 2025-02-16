@@ -3,7 +3,7 @@
 #define AppVersion "3.2.12.0"
 #define AppVersionPretty "3.2.12"
 #define AppVersionShort "3.2"
-#define AppAuthor "Mojang"
+#define AppAuthor "skmedix.pl"
 #define AppDir "sklauncher"
 #define JREVersion "21.0.6+7"
 #define JREFolder "jdk-21.0.6+7-jre"
@@ -19,6 +19,7 @@ AppPublisher={#AppAuthor}
 AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}
 AppUpdatesURL={#AppURL}
+VersionInfoVersion={#AppVersion}
 DefaultDirName={userappdata}\{#AppDir}
 DisableProgramGroupPage=no
 DefaultGroupName={#AppName}
