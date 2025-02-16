@@ -27,8 +27,10 @@ OutputBaseFilename={#AppName}_{#AppVersionPretty}_Setup
 SetupIconFile=img/icon.ico
 UninstallDisplayIcon={app}\icon.ico
 UninstallDisplayName={#AppName} {#AppVersionShort}
-Compression=lzma2
-SolidCompression=yes
+; start - https://stackoverflow.com/a/77553798
+Compression=zip
+SolidCompression=no
+; stop  - https://stackoverflow.com/a/77553798
 WizardStyle=modern
 WizardSmallImageFile=img/small.bmp
 WizardImageFile=img/large.bmp
