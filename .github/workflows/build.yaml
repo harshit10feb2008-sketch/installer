@@ -9,9 +9,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # We don't store the JAR in the repository, so we need to download it
+      # Our download is using a one-time URL, so we store a direct link in the repository secrets
+      # But it's always our universal JAR URL from the latest release (verify checksum in next step)
       - name: Download JAR
         run: |
           Invoke-WebRequest -Uri "${{ secrets.JAR_URL }}" -OutFile "SKlauncher.jar"
+        shell: pwsh
+
+      - name: Display checksum of JAR
+        run: |
+          Get-FileHash SKlauncher.jar -Algorithm SHA256
         shell: pwsh
 
       - name: Install InnoSetup
