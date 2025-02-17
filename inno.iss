@@ -129,7 +129,7 @@ procedure RenameJRE;
 begin
   Log('Renaming jre directory');
   if not RenameFile(ExpandConstant('{app}\\{#JREFolder}'), ExpandConstant('{app}\\jre')) then begin
-    Log('Failed to rename jre folder, creating custom ini');
+    Log('Failed to rename jre folder');
   end;
 end;
 
