@@ -9,9 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # We don't store the JAR in the repository, so we need to download it
-      # Our download is using a one-time URL, so we store a direct link in the repository secrets
-      # But it's always our universal JAR URL from the latest release (verify checksum in next step)
+      # The JAR file is not stored in the repository, so we need to download it.
+      # Since the download uses a one-time URL, we keep a direct link in the repository secrets.
+      # However, this link always points to the universal JAR URL from the latest release
+      # (checksum verification follows in the next step).
       - name: Download JAR
         run: |
           Invoke-WebRequest -Uri "${{ secrets.JAR_URL }}" -OutFile "SKlauncher.jar"
