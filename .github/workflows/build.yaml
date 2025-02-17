@@ -43,3 +43,8 @@ jobs:
         with:
           name: SKlauncher-Installer
           path: "*_Setup.exe"
+
+      - name: Display checksum of Installer
+        run: |
+          Get-FileHash *_Setup.exe -Algorithm SHA256
+        shell: pwsh
