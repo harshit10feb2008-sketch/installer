@@ -34,17 +34,10 @@ jobs:
 #        run: |
 #          choco install innosetup --no-progress
 
-      - name: Install scoop.sh
-        run: |
-          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-        shell: pwsh
-
-      - name: Install Inno Setup
-        run: |
-          scoop bucket add nonportable
-          scoop install nonportable/innosetup-np
-        shell: pwsh
+      - uses: MinoruSekine/setup-scoop@v4.0.1
+        with:
+          buckets: nonportable
+          apps: innosetup-np
 
       - name: Download 7zip CLI
         run: |
