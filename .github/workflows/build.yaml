@@ -5,6 +5,9 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: windows-latest
+    outputs:
+      jar-checksum: ${{ steps.jar-hash.outputs.checksum }}
+      installer-checksum: ${{ steps.installer-hash.outputs.checksum }}
 
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +21,12 @@ jobs:
           Invoke-WebRequest -Uri "${{ secrets.JAR_URL }}" -OutFile "SKlauncher.jar"
         shell: pwsh
 
-      - name: Display checksum of JAR
+      - name: Display and capture checksum of JAR
+        id: jar-hash
         run: |
-          Get-FileHash SKlauncher.jar -Algorithm SHA256
+          $hash = (Get-FileHash SKlauncher.jar -Algorithm SHA256).Hash
+          Write-Host "JAR SHA256: $hash"
+          Add-Content $env:GITHUB_OUTPUT "checksum=$hash"
         shell: pwsh
 
       - name: Install InnoSetup
@@ -45,7 +51,59 @@ jobs:
           name: SKlauncher-Installer
           path: "*_Setup.exe"
 
-      - name: Display checksum of Installer
+      - name: Display and capture checksum of Installer
+        id: installer-hash
         run: |
-          Get-FileHash *_Setup.exe -Algorithm SHA256
+          $hash = (Get-FileHash *_Setup.exe -Algorithm SHA256).Hash
+          Write-Host "Installer SHA256: $hash"
+          Add-Content $env:GITHUB_OUTPUT "checksum=$hash"
         shell: pwsh
+
+  update_latest_release:
+    name: Upload build to Latest Release
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Set up variables
+        id: vars
+        run: |
+          echo "date_now=$(date --rfc-3339=seconds)" >> "${GITHUB_OUTPUT}"
+
+      - name: Download build artifacts from previous job
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Delete the existing latest pre-release
+        run: |
+          gh release delete latest --cleanup-tag --yes --repo $GITHUB_REPOSITORY || echo "Release 'latest' not found, continuing..."
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create a new latest build release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: artifacts/*/*
+          body: |
+            **This is an automatically generated latest build of SKlauncher.**
+            **⚠️ This is a development build and may be unstable. ⚠️**
+            **Use at your own risk.**
+
+            ## Build Information
+            - **Build date:** `${{ steps.vars.outputs.date_now }}`
+            - **Commit:** ${{ github.sha }}
+            - **Triggered by:** ${{ github.event_name }}
+
+            ## Checksums
+            - **JAR SHA256:** `${{ needs.build.outputs.jar-checksum }}`
+            - **Installer SHA256:** `${{ needs.build.outputs.installer-checksum }}`
+          name: Latest Build
+          prerelease: true
+          removeArtifacts: true
+          tag: latest
