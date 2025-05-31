@@ -29,9 +29,22 @@ jobs:
           Add-Content $env:GITHUB_OUTPUT "checksum=$hash"
         shell: pwsh
 
-      - name: Install InnoSetup
+#      Note: Currently InnoSetup on chocolatey is outdated
+#      - name: Install InnoSetup
+#        run: |
+#          choco install innosetup --no-progress
+
+      - name: Install scoop.sh
         run: |
-          choco install innosetup --no-progress
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+        shell: pwsh
+
+      - name: Install Inno Setup
+        run: |
+          scoop bucket add nonportable
+          scoop install nonportable/innosetup-np
+        shell: pwsh
 
       - name: Download 7zip CLI
         run: |
