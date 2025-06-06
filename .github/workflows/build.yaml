@@ -1,9 +1,11 @@
 name: Build Installer
 
-on: [push, pull_request]
+on:
+  push:
 
 jobs:
   build:
+    if: ${{ github.repository_owner == 'sklauncher' }}
     runs-on: windows-latest
     outputs:
       jar-checksum: ${{ steps.jar-hash.outputs.checksum }}
