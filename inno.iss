@@ -28,6 +28,7 @@ OutputBaseFilename={#AppName}_{#AppVersionPretty}_Setup
 SetupIconFile=img/icon.ico
 UninstallDisplayIcon={app}\icon.ico
 UninstallDisplayName={#AppName} {#AppVersionShort}
+ArchiveExtraction=full
 ; start - https://stackoverflow.com/a/77553798
 Compression=zip
 SolidCompression=no
@@ -45,8 +46,7 @@ DirExistsWarning=no
 [Files]
 Source: "{#MainJarFile}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "img\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "7za.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "{tmp}\jre.zip"; DestDir: "{tmp}"; Flags: external deleteafterinstall
+Source: "{tmp}\jre.zip"; DestDir: "{tmp}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion deleteafterinstall
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\jre\bin\javaw.exe"; Parameters: "-Xmx512M -jar ""{app}\{#MainJarFile}"""; IconFilename: "{app}\icon.ico"; WorkingDir: "{app}"
@@ -126,11 +126,45 @@ begin
 end;
 
 procedure RenameJRE;
+var
+  TempJREPath, FinalJREPath: String;
 begin
-  Log('Renaming jre directory');
-  if not RenameFile(ExpandConstant('{app}\\{#JREFolder}'), ExpandConstant('{app}\\jre')) then begin
-    Log('Failed to rename jre folder');
+  TempJREPath := ExpandConstant('{tmp}\{#JREFolder}');
+  FinalJREPath := ExpandConstant('{app}\jre');
+
+  Log('Starting JRE directory management...');
+  Log('Temp JRE path: ' + TempJREPath);
+  Log('Final JRE path: ' + FinalJREPath);
+
+  // Remove existing jre directory if it exists
+  if DirExists(FinalJREPath) then
+  begin
+    Log('Removing existing jre directory...');
+    if DelTree(FinalJREPath, True, True, True) then
+      Log('Successfully removed existing jre directory')
+    else
+      Log('Failed to remove existing jre directory');
   end;
+
+  // Move the extracted JRE directory from temp to app directory
+  if DirExists(TempJREPath) then
+  begin
+    Log('Moving JRE directory from ' + TempJREPath + ' to ' + FinalJREPath);
+
+    // Ensure the app directory exists
+    if not DirExists(ExpandConstant('{app}')) then
+    begin
+      Log('Creating app directory...');
+      ForceDirectories(ExpandConstant('{app}'));
+    end;
+
+    if RenameFile(TempJREPath, FinalJREPath) then
+      Log('Successfully moved JRE directory')
+    else
+      Log('Failed to move JRE directory');
+  end
+  else
+    Log('Source JRE directory not found: ' + TempJREPath);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -245,13 +279,21 @@ begin
   CopyJavaFXFiles;
 end;
 
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    DoInstall;
+  end;
+end;
+
 [Run]
-Filename: "{tmp}\7za.exe"; Parameters: "x -y {tmp}\jre.zip"; WorkingDir: "{app}"; AfterInstall: DoInstall; StatusMsg: "Extracting Java Runtime..."; Flags: runhidden runascurrentuser
 
 ; Launch the JAR file after installation
 Filename: "{app}\jre\bin\javaw.exe"; Parameters: "-Xmx512M -jar ""{app}\{#MainJarFile}"""; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\jre"
+Type: filesandordirs; Name: "{app}\{#JREFolder}"
 Type: filesandordirs; Name: "{userappdata}\.minecraft\{#AppDir}"
 Type: filesandordirs; Name: "{userappdata}\.minecraft\{#AppDir}\javafx"

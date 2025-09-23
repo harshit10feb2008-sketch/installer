@@ -41,13 +41,6 @@ jobs:
           buckets: nonportable
           apps: innosetup-np
 
-      - name: Download 7zip CLI
-        run: |
-          Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2409-extra.7z" -OutFile "7z-extra.7z"
-          & 'C:\Program Files\7-Zip\7z.exe' e 7z-extra.7z -o"." 7za.exe -r -y
-          Remove-Item 7z-extra.7z
-        shell: pwsh
-
       - name: Compile Installer
         run: |
           & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /O"." inno.iss
