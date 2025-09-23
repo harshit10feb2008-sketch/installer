@@ -82,6 +82,7 @@ jobs:
       - name: Download build artifacts from previous job
         uses: actions/download-artifact@v5
         with:
+          name: SKlauncher-Installer
           path: artifacts
 
       - name: Delete the existing latest pre-release
@@ -95,7 +96,7 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
-          artifacts: artifacts/*/*
+          artifacts: artifacts/*
           body: |
             **This is an automatically generated latest build of SKlauncher.**
             **⚠️ This is a development build and may be unstable. ⚠️**
