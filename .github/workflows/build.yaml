@@ -33,19 +33,22 @@ jobs:
           Add-Content $env:GITHUB_OUTPUT "checksum=$hash"
         shell: pwsh
 
-#      Note: Currently InnoSetup on chocolatey is outdated
-#      - name: Install InnoSetup
-#        run: |
-#          choco install innosetup --no-progress
-
-      - uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: nonportable
-          apps: innosetup-np
+      - name: Install InnoSetup
+        run: |
+          winget install --id=JRSoftware.InnoSetup -e
+        shell: pwsh
 
       - name: Compile Installer
         run: |
-          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' /O"." inno.iss
+          $isccPath = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+          
+          if (-not (Test-Path $isccPath)) {
+            Write-Error "ISCC.exe not found at: $isccPath"
+            exit 1
+          }
+          
+          Write-Host "Found ISCC.exe at: $isccPath"
+          & $isccPath /O"." inno.iss
         shell: pwsh
 
       - name: Upload Artifacts
