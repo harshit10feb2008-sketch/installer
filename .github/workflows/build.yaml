@@ -14,7 +14,7 @@ jobs:
       installer-checksum: ${{ steps.installer-hash.outputs.checksum }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # The JAR file is not stored in the repository, so we need to download it.
       # Since the download uses a one-time URL, we keep a direct link in the repository secrets.
@@ -38,7 +38,7 @@ jobs:
 #        run: |
 #          choco install innosetup --no-progress
 
-      - uses: MinoruSekine/setup-scoop@v4.0.1
+      - uses: MinoruSekine/setup-scoop@v4.0.2
         with:
           buckets: nonportable
           apps: innosetup-np
@@ -77,7 +77,7 @@ jobs:
           echo "date_now=$(date --rfc-3339=seconds)" >> "${GITHUB_OUTPUT}"
 
       - name: Download build artifacts from previous job
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
 
