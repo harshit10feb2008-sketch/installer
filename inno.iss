@@ -42,6 +42,7 @@ DisableDirPage=auto
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 DirExistsWarning=no
+MinVersion=6.2.9200
 
 [Files]
 Source: "{#MainJarFile}"; DestDir: "{app}"; Flags: ignoreversion
